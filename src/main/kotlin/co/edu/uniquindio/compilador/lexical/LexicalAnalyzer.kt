@@ -53,8 +53,9 @@ class LexicalAnalyzer(var sourceCode : String ) {
     /**
      * Función encargada de agregar un token a la lista de tokens
      */
-    fun addToken(lexeme : String, category : Category, row : Int, column : Int){
+    fun addToken(lexeme : String, category : Category, row : Int, column : Int) : Boolean{
         tokens.add(Token(lexeme, category, row, column ))
+        return true
     }
 
     /**
@@ -87,6 +88,7 @@ class LexicalAnalyzer(var sourceCode : String ) {
             }
             if(isInteger()) continue
             if(isReservedWordsOrIdentifier()) continue
+            if(isDecimal()) continue
 
             addToken(currentCharacter.toString(), Category.DESCONOCIDO, currentRow, currentColumn)
             nextCharacter()
@@ -100,19 +102,63 @@ class LexicalAnalyzer(var sourceCode : String ) {
     fun isInteger() : Boolean{
         if(currentCharacter.isDigit()){
             var lexeme = ""
-            lexeme += currentCharacter
+            lexeme = concatCurrentCharacter(lexeme)
             setPositionsBacktracking(currentRow,currentColumn,currentPosition)
             nextCharacter()
-            while (currentCharacter.isDigit() || currentCharacter == '.'){
-                lexeme += currentCharacter
+            while (currentCharacter.isDigit() || isPoint(currentCharacter)){
+                lexeme = concatCurrentCharacter(lexeme)
                 if(currentCharacter=='.'){
                     backtracking()
                     return false
                 }
                 nextCharacter()
             }
-            addToken(lexeme, Category.ENTERO, positionsBacktracking[0], positionsBacktracking[1])
-            return true
+            return addToken(lexeme, Category.ENTERO, positionsBacktracking[0], positionsBacktracking[1])
+        }
+        return false
+    }
+
+    /**
+     * Función encargada de verificar si un token es decimal
+     * @return true si el token es entero; de lo contrario, false
+     */
+    fun isDecimal() : Boolean{
+        if(currentCharacter.isDigit() || isPoint(currentCharacter)){
+            var lexeme = ""
+            setPositionsBacktracking(currentRow,currentColumn,currentPosition)
+            if(isPoint(currentCharacter)){
+                lexeme = concatCurrentCharacter(lexeme)
+                nextCharacter()
+                if(currentCharacter.isDigit()){
+                    lexeme = concatCurrentCharacter(lexeme)
+                    nextCharacter()
+                }else{
+                    backtracking()
+                    return false
+                }
+            }else{
+                lexeme = concatCurrentCharacter(lexeme)
+                nextCharacter()
+                while(currentCharacter.isDigit()){
+                    lexeme = concatCurrentCharacter(lexeme)
+                    nextCharacter()
+                }
+                if(isPoint(currentCharacter)){
+                    lexeme = concatCurrentCharacter(lexeme)
+                    nextCharacter()
+                }
+            }
+
+            while(currentCharacter.isDigit()){
+                lexeme = concatCurrentCharacter(lexeme)
+                nextCharacter()
+            }
+
+            if(isPoint(currentCharacter)){
+                backtracking()
+                return false
+            }
+            return addToken(lexeme, Category.DECIMAL, currentRow, currentColumn)
         }
         return false
     }
@@ -122,13 +168,13 @@ class LexicalAnalyzer(var sourceCode : String ) {
      * @return true si el token es es una palabra reservada o un identificador; de lo contrario, false
      */
     fun isReservedWordsOrIdentifier() : Boolean{
-        if(currentCharacter.isLetter() || currentCharacter.isDigit() || currentCharacter == '_'){
+        if(currentCharacter.isLetter() ||  isUnderscore(currentCharacter)){
             var lexeme = ""
-            lexeme += currentCharacter
+            lexeme = concatCurrentCharacter(lexeme)
             setPositionsBacktracking(currentRow,currentColumn,currentPosition)
             nextCharacter()
-            while(currentCharacter.isLetter() || currentCharacter.isDigit() || currentCharacter == '_'){
-                lexeme += currentCharacter
+            while(currentCharacter.isLetter() || currentCharacter.isDigit() || isUnderscore(currentCharacter)){
+                lexeme = concatCurrentCharacter(lexeme)
                 nextCharacter()
             }
             if(ReservedWords.values().map { it.name }.contains(lexeme)){
@@ -136,11 +182,31 @@ class LexicalAnalyzer(var sourceCode : String ) {
                 return true
             }else{
                 //TODO MAX 10 CARACTERES
-                addToken(lexeme,Category.IDENTIFICADOR,currentRow,currentColumn)
-                return true
+                return addToken(lexeme,Category.IDENTIFICADOR,currentRow,currentColumn)
             }
         }
         return false
+    }
+
+    /**
+     * Función encargada de validar si un carácter es un punto
+     */
+    fun isPoint(character: Char) : Boolean{
+        return character == '.'
+    }
+
+    /**
+     * Función encargada de validar si un carácter es un guion bajo
+     */
+    fun isUnderscore(character: Char) : Boolean{
+        return character == '_'
+    }
+
+    /**
+     * Función encargada de concatenar el carácter actual
+     */
+    fun concatCurrentCharacter(lexeme: String) : String {
+        return lexeme + currentCharacter
     }
 
     /**
