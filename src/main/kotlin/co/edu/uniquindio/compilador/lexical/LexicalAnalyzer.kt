@@ -77,7 +77,7 @@ class LexicalAnalyzer(var sourceCode : String ) {
     }
 
     /**
-     * Función encarga de analizar el código fuente
+     * Función encargada de analizar el código fuente
      */
     fun analyze(){
         while(currentCharacter != endSourceCode) {
@@ -86,6 +86,7 @@ class LexicalAnalyzer(var sourceCode : String ) {
                 continue
             }
             if(isInteger()) continue
+            if(isReservedWordsOrIdentifier()) continue
 
             addToken(currentCharacter.toString(), Category.DESCONOCIDO, currentRow, currentColumn)
             nextCharacter()
@@ -113,7 +114,33 @@ class LexicalAnalyzer(var sourceCode : String ) {
             addToken(lexeme, Category.ENTERO, positionsBacktracking[0], positionsBacktracking[1])
             return true
         }
-        return true
+        return false
+    }
+
+    /**
+     * Función encargada de verificar si un token es una palabra reservada o un identificador
+     * @return true si el token es es una palabra reservada o un identificador; de lo contrario, false
+     */
+    fun isReservedWordsOrIdentifier() : Boolean{
+        if(currentCharacter.isLetter() || currentCharacter.isDigit() || currentCharacter == '_'){
+            var lexeme = ""
+            lexeme += currentCharacter
+            setPositionsBacktracking(currentRow,currentColumn,currentPosition)
+            nextCharacter()
+            while(currentCharacter.isLetter() || currentCharacter.isDigit() || currentCharacter == '_'){
+                lexeme += currentCharacter
+                nextCharacter()
+            }
+            if(ReservedWords.values().map { it.name }.contains(lexeme)){
+                addToken(lexeme, Category.PALABRA_RESERVADA, currentRow, currentColumn)
+                return true
+            }else{
+                //TODO MAX 10 CARACTERES
+                addToken(lexeme,Category.IDENTIFICADOR,currentRow,currentColumn)
+                return true
+            }
+        }
+        return false
     }
 
     /**

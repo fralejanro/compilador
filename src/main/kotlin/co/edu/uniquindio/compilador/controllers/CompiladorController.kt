@@ -9,6 +9,7 @@ class CompiladorController {
 
     @FXML
     private fun analyze() {
-
+        lexicalAnalyzer = LexicalAnalyzer("")
+        lexicalAnalyzer.analyze()
     }
 }
