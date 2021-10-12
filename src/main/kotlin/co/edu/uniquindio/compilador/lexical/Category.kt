@@ -1,4 +1,4 @@
-package co.edu.uniquindio.compilador.app.lexical
+package co.edu.uniquindio.compilador.lexical
 
 /**
  * Enumeración que representa una categoría léxica
