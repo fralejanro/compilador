@@ -80,11 +80,13 @@ class LexicalAnalyzer(var sourceCode : String ) {
      * Función encarga de analizar el código fuente
      */
     fun analyze(){
-        while(currentCharacter != endSourceCode){
-            if(specialCharacters.contains(currentCharacter)) {
+        while(currentCharacter != endSourceCode) {
+            if (specialCharacters.contains(currentCharacter)) {
                 nextCharacter()
                 continue
             }
+            if(isInteger()) continue
+
             addToken(currentCharacter.toString(), Category.DESCONOCIDO, currentRow, currentColumn)
             nextCharacter()
         }
