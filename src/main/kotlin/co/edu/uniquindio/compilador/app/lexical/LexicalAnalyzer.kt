@@ -6,7 +6,20 @@ package co.edu.uniquindio.compilador.app.lexical
  */
 class LexicalAnalyzer(var sourceCode : String ) {
 
+    /**
+     * Atributo que representa las posiciones para hacer backtracking
+     *
+     * 0 - row
+     * 1 - column
+     * 2 - position
+     */
+    var positionsBacktracking = mutableListOf(0,0,0)
+
+    /**
+     * Atributo que representa algunos caracteres especiales
+     */
     var specialCharacters = listOf(' ','\n', '\t')
+
     /**
      * Atributo que representa la posición actual dentro del código fuente
      */
@@ -76,5 +89,50 @@ class LexicalAnalyzer(var sourceCode : String ) {
             nextCharacter()
         }
     }
-    
+
+    /**
+     * Función encargada de verificar si un token es entero
+     * @return true si el token es entero; de lo contrario, false
+     */
+    fun isInteger() : Boolean{
+        if(currentCharacter.isDigit()){
+            var lexeme = ""
+            lexeme += currentCharacter
+            setPositionsBacktracking(currentRow,currentColumn,currentPosition)
+            nextCharacter()
+            while (currentCharacter.isDigit() || currentCharacter == '.'){
+                lexeme += currentCharacter
+                if(currentCharacter=='.'){
+                    backtracking()
+                    return false
+                }
+                nextCharacter()
+            }
+            addToken(lexeme, Category.ENTERO, positionsBacktracking[0], positionsBacktracking[1])
+            return true
+        }
+        return true
+    }
+
+    /**
+     * Función encargada de almacenar las posiciones para hacer backtracking
+     * @param row fila actual
+     * @param column columna actual
+     * @param position posición actual
+     */
+    fun setPositionsBacktracking(row: Int, column: Int, position : Int){
+        positionsBacktracking[0] = row
+        positionsBacktracking[1] = column
+        positionsBacktracking[2] = position
+    }
+
+    /**
+     * Función encargada de hacer backtracking
+     */
+    fun backtracking (){
+        currentRow = positionsBacktracking[0]
+        currentColumn = positionsBacktracking[1]
+        currentPosition = positionsBacktracking[2]
+        currentCharacter = sourceCode[positionsBacktracking[2]]
+    }
 }
