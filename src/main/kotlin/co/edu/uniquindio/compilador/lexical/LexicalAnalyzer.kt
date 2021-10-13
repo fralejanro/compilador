@@ -48,7 +48,7 @@ class LexicalAnalyzer(var sourceCode : String ) {
     /**
      * Atributo que representa el fin del código fuente
      */
-    var endSourceCode = 0.toChar();
+    var endSourceCode = 0.toChar()
 
     /**
      * Función encargada de agregar un token a la lista de tokens
@@ -89,6 +89,7 @@ class LexicalAnalyzer(var sourceCode : String ) {
             if(isInteger()) continue
             if(isReservedWordsOrIdentifier()) continue
             if(isDecimal()) continue
+            if(isArithmeticOperator()) continue
 
             addToken(currentCharacter.toString(), Category.DESCONOCIDO, currentRow, currentColumn)
             nextCharacter()
@@ -107,7 +108,7 @@ class LexicalAnalyzer(var sourceCode : String ) {
             nextCharacter()
             while (currentCharacter.isDigit() || isPoint(currentCharacter)){
                 lexeme = concatCurrentCharacter(lexeme)
-                if(currentCharacter=='.'){
+                if(isPoint(currentCharacter)){
                     backtracking()
                     return false
                 }
@@ -186,6 +187,37 @@ class LexicalAnalyzer(var sourceCode : String ) {
             }
         }
         return false
+    }
+
+    /**
+     * Función encargada de verificar si un token es un operador aritmético
+     * @return true si el token es es un operador aritmético; de lo contrario, false
+     */
+    fun isArithmeticOperator(): Boolean{
+        when(currentCharacter){
+            '+' -> return addTokenArithmeticOperator(mutableListOf('+','='))
+            '-' -> return addTokenArithmeticOperator(mutableListOf('-','='))
+            '/' -> return addTokenArithmeticOperator(mutableListOf('-','=','*'))
+            '*','%' -> return addTokenArithmeticOperator(mutableListOf('='))
+            else -> return false
+        }
+    }
+
+    /**
+     * Función encargada de agregar un token de un operador aritmético
+     * @return true si se agrega el operador aritmético; de lo contrario, false
+     */
+    fun addTokenArithmeticOperator(characters: MutableList<Char>): Boolean{
+        var lexeme =  ""
+        lexeme = concatCurrentCharacter(lexeme)
+        setPositionsBacktracking(currentRow,currentColumn,currentPosition)
+        nextCharacter()
+        return if(characters.contains(currentCharacter)){
+            backtracking()
+            false
+        }else{
+            addToken(lexeme,Category.OPERADOR_ARITMETICO, currentRow, currentColumn)
+        }
     }
 
     /**
