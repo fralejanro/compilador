@@ -53,8 +53,8 @@ class LexicalAnalyzer(var sourceCode : String ) {
     /**
      * Función encargada de agregar un token a la lista de tokens
      */
-    fun addToken(lexeme : String, category : Category, row : Int, column : Int) : Boolean{
-        tokens.add(Token(lexeme, category, row, column ))
+    fun addToken(lexeme : String, category : Category) : Boolean{
+        tokens.add(Token(lexeme, category, currentRow, currentColumn))
         return true
     }
 
@@ -91,8 +91,10 @@ class LexicalAnalyzer(var sourceCode : String ) {
             if(isDecimal()) continue
             if(isArithmeticOperator()) continue
             if(isAssignment()) continue
+            if(isIncreaseOrDecrement('+')) continue
+            if(isIncreaseOrDecrement('-')) continue
 
-            addToken(currentCharacter.toString(), Category.DESCONOCIDO, currentRow, currentColumn)
+            addToken(currentCharacter.toString(), Category.DESCONOCIDO)
             nextCharacter()
         }
     }
@@ -114,7 +116,7 @@ class LexicalAnalyzer(var sourceCode : String ) {
                 }
                 nextCharacter()
             }
-            return addToken(lexeme, Category.ENTERO, positionsBacktracking[0], positionsBacktracking[1])
+            return addToken(lexeme, Category.ENTERO)
         }
         return false
     }
@@ -157,7 +159,7 @@ class LexicalAnalyzer(var sourceCode : String ) {
             if(isPoint(currentCharacter)){
                 return backtracking()
             }
-            return addToken(lexeme, Category.DECIMAL, currentRow, currentColumn)
+            return addToken(lexeme, Category.DECIMAL)
         }
         return false
     }
@@ -177,11 +179,11 @@ class LexicalAnalyzer(var sourceCode : String ) {
                 nextCharacter()
             }
             if(ReservedWords.values().map { it.name }.contains(lexeme)){
-                addToken(lexeme, Category.PALABRA_RESERVADA, currentRow, currentColumn)
+                addToken(lexeme, Category.PALABRA_RESERVADA)
                 return true
             }else{
                 //TODO MAX 10 CARACTERES
-                return addToken(lexeme,Category.IDENTIFICADOR,currentRow,currentColumn)
+                return addToken(lexeme,Category.IDENTIFICADOR)
             }
         }
         return false
@@ -213,7 +215,7 @@ class LexicalAnalyzer(var sourceCode : String ) {
         return if(characters.contains(currentCharacter)){
             backtracking()
         }else{
-            addToken(lexeme,Category.OPERADOR_ARITMETICO, currentRow, currentColumn)
+            addToken(lexeme,Category.OPERADOR_ARITMETICO)
         }
     }
 
@@ -224,27 +226,54 @@ class LexicalAnalyzer(var sourceCode : String ) {
     fun isAssignment() : Boolean{
         if(mutableListOf('=','+','-','*','/').contains(currentCharacter)){
             var lexeme = ""
-            var previousCharacter = currentCharacter
+            val previousCharacter = currentCharacter
             setPositionsBacktracking(currentRow,currentColumn,currentPosition)
             lexeme = concatCurrentCharacter(lexeme)
             nextCharacter()
-            if(isEquals(previousCharacter) && isEquals(currentCharacter)){
+            return if(isEquals(previousCharacter) && isEquals(currentCharacter)){
                 lexeme = concatCurrentCharacter(lexeme)
                 nextCharacter()
-                return if(isEquals(currentCharacter)){
+                if(isEquals(currentCharacter)){
                     backtracking()
                 }else{
-                    addToken(lexeme, Category.ASIGNACION, currentRow, currentColumn)
+                    addToken(lexeme, Category.ASIGNACION)
                 }
             }else if(isEquals(currentCharacter)){
                 lexeme = concatCurrentCharacter(lexeme)
                 nextCharacter()
-                return addToken(lexeme, Category.ASIGNACION, currentRow, currentColumn)
+                addToken(lexeme, Category.ASIGNACION)
             }else{
-                return backtracking()
+                backtracking()
             }
         }
         return false
+    }
+
+    /**
+     * Función encargada de verificar si un token es incremento
+     * @return true si el token es incremento; de lo contrario, false
+     */
+    fun isIncreaseOrDecrement(operator : Char): Boolean {
+        if(currentCharacter==operator){
+            var lexeme = ""
+            setPositionsBacktracking(currentRow, currentColumn, currentPosition)
+            lexeme = concatCurrentCharacter(lexeme)
+            nextCharacter()
+            if(currentCharacter==operator){
+                lexeme = concatCurrentCharacter(lexeme)
+                val category = if (isPlus(currentCharacter)) Category.INCREMENTO else Category.DECREMENTO
+                nextCharacter()
+                return addToken(lexeme, category)
+            }
+        }
+        return false
+    }
+
+    /**
+     * Función encargada de validar si un carácter es una suma
+     */
+    fun isPlus(character: Char) : Boolean{
+        return character == '+'
     }
 
     /**
