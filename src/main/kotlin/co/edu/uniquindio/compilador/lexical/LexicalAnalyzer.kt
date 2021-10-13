@@ -90,6 +90,7 @@ class LexicalAnalyzer(var sourceCode : String ) {
             if(isReservedWordsOrIdentifier()) continue
             if(isDecimal()) continue
             if(isArithmeticOperator()) continue
+            if(isAssignment()) continue
 
             addToken(currentCharacter.toString(), Category.DESCONOCIDO, currentRow, currentColumn)
             nextCharacter()
@@ -109,8 +110,7 @@ class LexicalAnalyzer(var sourceCode : String ) {
             while (currentCharacter.isDigit() || isPoint(currentCharacter)){
                 lexeme = concatCurrentCharacter(lexeme)
                 if(isPoint(currentCharacter)){
-                    backtracking()
-                    return false
+                    return backtracking()
                 }
                 nextCharacter()
             }
@@ -134,8 +134,7 @@ class LexicalAnalyzer(var sourceCode : String ) {
                     lexeme = concatCurrentCharacter(lexeme)
                     nextCharacter()
                 }else{
-                    backtracking()
-                    return false
+                    return backtracking()
                 }
             }else{
                 lexeme = concatCurrentCharacter(lexeme)
@@ -156,8 +155,7 @@ class LexicalAnalyzer(var sourceCode : String ) {
             }
 
             if(isPoint(currentCharacter)){
-                backtracking()
-                return false
+                return backtracking()
             }
             return addToken(lexeme, Category.DECIMAL, currentRow, currentColumn)
         }
@@ -214,10 +212,46 @@ class LexicalAnalyzer(var sourceCode : String ) {
         nextCharacter()
         return if(characters.contains(currentCharacter)){
             backtracking()
-            false
         }else{
             addToken(lexeme,Category.OPERADOR_ARITMETICO, currentRow, currentColumn)
         }
+    }
+
+    /**
+     * Función encargada de verificar si un token es asignación
+     * @return true si el token es asignación; de lo contrario, false
+     */
+    fun isAssignment() : Boolean{
+        if(mutableListOf('=','+','-','*','/').contains(currentCharacter)){
+            var lexeme = ""
+            var previousCharacter = currentCharacter
+            setPositionsBacktracking(currentRow,currentColumn,currentPosition)
+            lexeme = concatCurrentCharacter(lexeme)
+            nextCharacter()
+            if(isEquals(previousCharacter) && isEquals(currentCharacter)){
+                lexeme = concatCurrentCharacter(lexeme)
+                nextCharacter()
+                return if(isEquals(currentCharacter)){
+                    backtracking()
+                }else{
+                    addToken(lexeme, Category.ASIGNACION, currentRow, currentColumn)
+                }
+            }else if(isEquals(currentCharacter)){
+                lexeme = concatCurrentCharacter(lexeme)
+                nextCharacter()
+                return addToken(lexeme, Category.ASIGNACION, currentRow, currentColumn)
+            }else{
+                return backtracking()
+            }
+        }
+        return false
+    }
+
+    /**
+     * Función encargada de validar si un carácter es un igual
+     */
+    fun isEquals(character: Char) : Boolean{
+        return character == '='
     }
 
     /**
@@ -256,10 +290,11 @@ class LexicalAnalyzer(var sourceCode : String ) {
     /**
      * Función encargada de hacer backtracking
      */
-    fun backtracking (){
+    fun backtracking () : Boolean{
         currentRow = positionsBacktracking[0]
         currentColumn = positionsBacktracking[1]
         currentPosition = positionsBacktracking[2]
         currentCharacter = sourceCode[positionsBacktracking[2]]
+        return false
     }
 }
