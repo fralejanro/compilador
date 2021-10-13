@@ -16,7 +16,7 @@ class LexicalAnalyzer(var sourceCode : String ) {
     var positionsBacktracking = mutableListOf(0,0,0)
 
     /**
-     * Atributo que representa algunos caracteres especiales
+     * Atributo que representa algunos carácteres especiales
      */
     var specialCharacters = listOf(' ','\n', '\t')
 
@@ -52,6 +52,9 @@ class LexicalAnalyzer(var sourceCode : String ) {
 
     /**
      * Función encargada de agregar un token a la lista de tokens
+     * @param lexeme lexema del token
+     * @param category categoría del token
+     * @return true
      */
     fun addToken(lexeme : String, category : Category) : Boolean{
         tokens.add(Token(lexeme, category, currentRow, currentColumn))
@@ -182,7 +185,7 @@ class LexicalAnalyzer(var sourceCode : String ) {
                 addToken(lexeme, Category.PALABRA_RESERVADA)
                 return true
             }else{
-                //TODO MAX 10 CARACTERES
+                //TODO MAX 10 carácterES
                 return addToken(lexeme,Category.IDENTIFICADOR)
             }
         }
@@ -231,6 +234,7 @@ class LexicalAnalyzer(var sourceCode : String ) {
             lexeme = concatCurrentCharacter(lexeme)
             nextCharacter()
             return if(isEquals(previousCharacter) && isEquals(currentCharacter)){
+                // Flujo =
                 lexeme = concatCurrentCharacter(lexeme)
                 nextCharacter()
                 if(isEquals(currentCharacter)){
@@ -239,6 +243,7 @@ class LexicalAnalyzer(var sourceCode : String ) {
                     addToken(lexeme, Category.ASIGNACION)
                 }
             }else if(isEquals(currentCharacter)){
+                // Flujo +, -, *, /
                 lexeme = concatCurrentCharacter(lexeme)
                 nextCharacter()
                 addToken(lexeme, Category.ASIGNACION)
@@ -251,6 +256,7 @@ class LexicalAnalyzer(var sourceCode : String ) {
 
     /**
      * Función encargada de verificar si un token es incremento
+     * @param operator operador a validar
      * @return true si el token es incremento; de lo contrario, false
      */
     fun isIncreaseOrDecrement(operator : Char): Boolean {
@@ -271,6 +277,8 @@ class LexicalAnalyzer(var sourceCode : String ) {
 
     /**
      * Función encargada de validar si un carácter es una suma
+     * @param character carácter a validar
+     * @return true si el carácter es una suma; de lo contrario, false
      */
     fun isPlus(character: Char) : Boolean{
         return character == '+'
@@ -278,6 +286,8 @@ class LexicalAnalyzer(var sourceCode : String ) {
 
     /**
      * Función encargada de validar si un carácter es un igual
+     * @param character carácter a validar
+     * @return true si el carácter es un igual; de lo contrario, false
      */
     fun isEquals(character: Char) : Boolean{
         return character == '='
@@ -285,13 +295,17 @@ class LexicalAnalyzer(var sourceCode : String ) {
 
     /**
      * Función encargada de validar si un carácter es un punto
+     * @param character carácter a validar
+     * @return true si el carácter es un punto; de lo contrario, false
      */
     fun isPoint(character: Char) : Boolean{
         return character == '.'
     }
 
     /**
-     * Función encargada de validar si un carácter es un guion bajo
+     * Función encargada de validar si un carácter es un guión bajo
+     * @param character carácter a validar
+     * @return true si el carácter es un guión bajo; de lo contrario, false
      */
     fun isUnderscore(character: Char) : Boolean{
         return character == '_'
@@ -299,6 +313,8 @@ class LexicalAnalyzer(var sourceCode : String ) {
 
     /**
      * Función encargada de concatenar el carácter actual
+     * @param lexeme lexema a concatenar
+     * @return lexema concatenado con el carácter actual
      */
     fun concatCurrentCharacter(lexeme: String) : String {
         return lexeme + currentCharacter
@@ -318,6 +334,7 @@ class LexicalAnalyzer(var sourceCode : String ) {
 
     /**
      * Función encargada de hacer backtracking
+     * @return false
      */
     fun backtracking () : Boolean{
         currentRow = positionsBacktracking[0]
