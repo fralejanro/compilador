@@ -9,7 +9,7 @@ class CompiladorController {
 
     @FXML
     private fun analyze() {
-        lexicalAnalyzer = LexicalAnalyzer("++--+---+=+++=DOUBLE-=.10==/=1.0")
+        lexicalAnalyzer = LexicalAnalyzer("==++--+---+=+++=DOUBLE-=.10==/=1.0")
         lexicalAnalyzer.analyze()
     }
 }

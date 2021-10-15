@@ -61,6 +61,19 @@ class LexicalAnalyzer(var sourceCode : String ) {
         return true
     }
 
+
+    /**
+     * Función encargada de agregar un token a la lista de tokens y de obtener el siguiente token
+     * @param lexeme lexema del token
+     * @param category categoría del token
+     * @return true
+     */
+    fun addTokenNext(lexeme : String, category : Category) : Boolean{
+        tokens.add(Token(lexeme, category, currentRow, currentColumn))
+        nextCharacter()
+        return true
+    }
+
     /**
      * Función encargada de aumentar la posición actual de la fila y la columna actual
      * para obtener el siguiente carácter
@@ -96,9 +109,9 @@ class LexicalAnalyzer(var sourceCode : String ) {
             if(isAssignment()) continue
             if(isIncreaseOrDecrement('+')) continue
             if(isIncreaseOrDecrement('-')) continue
+            if(isRelationalOperator()) continue
 
-            addToken(currentCharacter.toString(), Category.DESCONOCIDO)
-            nextCharacter()
+            addTokenNext(currentCharacter.toString(), Category.DESCONOCIDO)
         }
     }
 
@@ -255,9 +268,9 @@ class LexicalAnalyzer(var sourceCode : String ) {
     }
 
     /**
-     * Función encargada de verificar si un token es incremento
+     * Función encargada de verificar si un token es incremento o decremento
      * @param operator operador a validar
-     * @return true si el token es incremento; de lo contrario, false
+     * @return true si el token es incremento o decremento; de lo contrario, false
      */
     fun isIncreaseOrDecrement(operator : Char): Boolean {
         if(currentCharacter==operator){
@@ -272,6 +285,45 @@ class LexicalAnalyzer(var sourceCode : String ) {
                 return addToken(lexeme, category)
             }
         }
+        return false
+    }
+
+    /**
+     * Función encargada de verificar si un token es un operador relacional
+     * @return true si el token es es un operador relacional; de lo contrario, false
+     */
+    fun isRelationalOperator(): Boolean{
+        if(mutableListOf('!','=','<','>').contains(currentCharacter)){
+            var lexeme = ""
+            setPositionsBacktracking(currentRow,currentColumn,currentPosition)
+            lexeme = concatCurrentCharacter(lexeme)
+            if(currentCharacter == '<' || currentCharacter == '>' ){
+                nextCharacter()
+                if(isEquals(currentCharacter)){
+                    lexeme = concatCurrentCharacter(lexeme)
+                    return addTokenNext(lexeme,Category.OPERADOR_RELACIONAL)
+                }
+                return addToken(lexeme,Category.OPERADOR_RELACIONAL)
+            }else{
+                nextCharacter()
+                if(isEquals(currentCharacter)){
+                    lexeme = concatCurrentCharacter(lexeme)
+                    nextCharacter()
+                    if(isEquals(currentCharacter)){
+                        lexeme = concatCurrentCharacter(lexeme)
+                        return addTokenNext(lexeme, Category.OPERADOR_RELACIONAL)
+                    }else{
+                        return addToken(lexeme,Category.OPERADOR_RELACIONAL)
+                    }
+
+                }else{
+                    return backtracking()
+                }
+            }
+
+            return backtracking()
+        }
+
         return false
     }
 
