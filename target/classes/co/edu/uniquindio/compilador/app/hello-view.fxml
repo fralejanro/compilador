@@ -1,15 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<?import javafx.scene.control.Button?>
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="co.edu.uniquindio.compilador.controllers.CompiladorController">
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
-    </padding>
-
-    <Button text="Analizar" onAction="#analyze"/>
-</VBox>
+<AnchorPane  xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.uniquindio.compilador.controllers.CompiladorController">
+    <children>
+        <Button fx:id="btnAnalizar" layoutX="14.0" layoutY="356.0" mnemonicParsing="false" onAction="#analyze" prefHeight="25.0" prefWidth="120.0" text="Analizar" />
+        <TabPane layoutX="14.0" layoutY="393.0" prefHeight="200.0" prefWidth="687.0" tabClosingPolicy="UNAVAILABLE">
+            <tabs>
+                <Tab text="Tabla Léxica">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                            <children>
+                                <TableView fx:id="tablaPrincipal" prefHeight="171.0" prefWidth="687.0">
+                                    <columns>
+                                        <TableColumn fx:id="colRow" editable="false" prefWidth="50.0" resizable="false" sortable="false" text="FIL" />
+                                        <TableColumn fx:id="colColumn" editable="false" prefWidth="50.0" resizable="false" sortable="false" text="COL" />
+                                        <TableColumn fx:id="colCategory" editable="false" prefWidth="300.0" resizable="false" sortable="false" text="CATEGORIA" />
+                                        <TableColumn fx:id="colLexeme" editable="false" minWidth="0.0" prefWidth="286.0" resizable="false" sortable="false" text="LEXEMA" />
+                                    </columns>
+                                    <columnResizePolicy>
+                                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                    </columnResizePolicy>
+                                </TableView>
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+                <Tab text="Error Lexico">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="171.0" prefWidth="510.0">
+                            <children>
+                                <TableView fx:id="tablaError" layoutX="1.0" prefHeight="169.0" prefWidth="687.0">
+                                    <columns>
+                                        <TableColumn fx:id="colRowError" prefWidth="50.0" text="FIL" />
+                                        <TableColumn fx:id="colColumnError" prefWidth="50.0" text="COL" />
+                                        <TableColumn fx:id="colError" prefWidth="586.0" text="ERROR" />
+                                    </columns>
+                                </TableView>
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
+        <TabPane layoutX="14.0" layoutY="20.0" prefHeight="327.0" prefWidth="687.0" tabClosingPolicy="UNAVAILABLE">
+            <tabs>
+                <Tab text="Código fuente:">
+                    <content>
+                        <TextArea fx:id="txtCodigo" prefHeight="83.0" prefWidth="687.0" />
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
+    </children>
+</AnchorPane>

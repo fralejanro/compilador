@@ -57,7 +57,7 @@ class LexicalAnalyzer(var sourceCode : String ) {
      * @return true
      */
     fun addToken(lexeme : String, category : Category) : Boolean{
-        tokens.add(Token(lexeme, category, currentRow, currentColumn))
+        tokens.add(Token(lexeme, category, positionsBacktracking[0], positionsBacktracking[1]))
         return true
     }
 
@@ -110,7 +110,15 @@ class LexicalAnalyzer(var sourceCode : String ) {
             if(isIncreaseOrDecrement('+')) continue
             if(isIncreaseOrDecrement('-')) continue
             if(isRelationalOperator()) continue
-
+            if(isAnotherCharacter(',',Category.SEPARADOR)) continue
+            if(isAnotherCharacter(':',Category.DOS_PUNTOS)) continue
+            if(isAnotherCharacter('{',Category.LLAVE_IZQUIERDA)) continue
+            if(isAnotherCharacter('}',Category.LLAVE_DERECHA)) continue
+            if(isAnotherCharacter('[',Category.CORCHETE_IZQUIERDO)) continue
+            if(isAnotherCharacter(']',Category.CORCHETE_DERECHO)) continue
+            if(isAnotherCharacter('(',Category.PARENTESIS_IZQUIERDO)) continue
+            if(isAnotherCharacter(')',Category.PARENTESIS_DERECHO)) continue
+            if(isAnotherCharacter(';',Category.FIN_SENTENCIA)) continue
             addTokenNext(currentCharacter.toString(), Category.DESCONOCIDO)
         }
     }
@@ -293,38 +301,52 @@ class LexicalAnalyzer(var sourceCode : String ) {
      * @return true si el token es es un operador relacional; de lo contrario, false
      */
     fun isRelationalOperator(): Boolean{
-        if(mutableListOf('!','=','<','>').contains(currentCharacter)){
+        if(mutableListOf('!','=','<','>').contains(currentCharacter)) {
             var lexeme = ""
-            setPositionsBacktracking(currentRow,currentColumn,currentPosition)
+            setPositionsBacktracking(currentRow, currentColumn, currentPosition)
             lexeme = concatCurrentCharacter(lexeme)
-            if(currentCharacter == '<' || currentCharacter == '>' ){
+            if (currentCharacter == '<' || currentCharacter == '>') {
                 nextCharacter()
-                if(isEquals(currentCharacter)){
+                if (isEquals(currentCharacter)) {
                     lexeme = concatCurrentCharacter(lexeme)
-                    return addTokenNext(lexeme,Category.OPERADOR_RELACIONAL)
+                    return addTokenNext(lexeme, Category.OPERADOR_RELACIONAL)
                 }
-                return addToken(lexeme,Category.OPERADOR_RELACIONAL)
-            }else{
+                return addToken(lexeme, Category.OPERADOR_RELACIONAL)
+            } else {
                 nextCharacter()
-                if(isEquals(currentCharacter)){
+                if (isEquals(currentCharacter)) {
                     lexeme = concatCurrentCharacter(lexeme)
                     nextCharacter()
-                    if(isEquals(currentCharacter)){
+                    if (isEquals(currentCharacter)) {
                         lexeme = concatCurrentCharacter(lexeme)
                         return addTokenNext(lexeme, Category.OPERADOR_RELACIONAL)
-                    }else{
-                        return addToken(lexeme,Category.OPERADOR_RELACIONAL)
+                    } else {
+                        return addToken(lexeme, Category.OPERADOR_RELACIONAL)
                     }
 
-                }else{
+                } else {
                     return backtracking()
                 }
             }
-
-            return backtracking()
         }
-
         return false
+    }
+
+    /**
+     * Función encargada de verificar si un token es de un solo carácter
+     * @param character caracter a validar
+     * @param category categoría del token
+     * @return true si el token es de un solo carácter; de lo contrario, false
+     */
+    fun isAnotherCharacter (character:Char,category:Category): Boolean{
+        if(currentCharacter==character){
+            var lexeme = ""
+            setPositionsBacktracking(currentRow,currentColumn,currentPosition)
+            lexeme = concatCurrentCharacter(lexeme)
+            return addTokenNext(lexeme,category)
+        }else{
+            return false
+        }
     }
 
     /**
