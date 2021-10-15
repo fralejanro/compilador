@@ -61,7 +61,6 @@ class LexicalAnalyzer(var sourceCode : String ) {
         return true
     }
 
-
     /**
      * Función encargada de agregar un token a la lista de tokens y de obtener el siguiente token
      * @param lexeme lexema del token
@@ -110,6 +109,7 @@ class LexicalAnalyzer(var sourceCode : String ) {
             if(isIncreaseOrDecrement('+')) continue
             if(isIncreaseOrDecrement('-')) continue
             if(isRelationalOperator()) continue
+            if(isPoint()) continue
             if(isAnotherCharacter(',',Category.SEPARADOR)) continue
             if(isAnotherCharacter(':',Category.DOS_PUNTOS)) continue
             if(isAnotherCharacter('{',Category.LLAVE_IZQUIERDA)) continue
@@ -323,7 +323,6 @@ class LexicalAnalyzer(var sourceCode : String ) {
                     } else {
                         return addToken(lexeme, Category.OPERADOR_RELACIONAL)
                     }
-
                 } else {
                     return backtracking()
                 }
@@ -344,9 +343,27 @@ class LexicalAnalyzer(var sourceCode : String ) {
             setPositionsBacktracking(currentRow,currentColumn,currentPosition)
             lexeme = concatCurrentCharacter(lexeme)
             return addTokenNext(lexeme,category)
-        }else{
-            return false
         }
+        return false
+    }
+
+    /**
+     * Función encargada de verificar si un token es un punto
+     * @return true si el token es es un punto; de lo contrario, false
+     */
+    fun isPoint() : Boolean{
+        if(isPoint(currentCharacter)){
+            var lexeme = ""
+            setPositionsBacktracking(currentRow,currentColumn,currentPosition)
+            lexeme = concatCurrentCharacter(lexeme)
+            nextCharacter()
+            if(currentCharacter.isDigit()){
+                return backtracking()
+            }else{
+                return addToken(lexeme, Category.PUNTO)
+            }
+        }
+        return false
     }
 
     /**
