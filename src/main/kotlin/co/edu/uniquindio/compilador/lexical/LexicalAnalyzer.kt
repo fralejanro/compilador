@@ -111,6 +111,7 @@ class LexicalAnalyzer(var sourceCode : String ) {
             if(isIncreaseOrDecrement('+')) continue
             if(isIncreaseOrDecrement('-')) continue
             if(isRelationalOperator()) continue
+            if(isString()) continue
             if(isCharacter()) continue
             if(isPoint()) continue
             if(isAnotherCharacter(',',Category.SEPARADOR)) continue
@@ -396,6 +397,32 @@ class LexicalAnalyzer(var sourceCode : String ) {
                 lexeme = concatCurrentCharacter(lexeme)
                 return addTokenNext(lexeme,Category.CARACTER)
             }
+        }
+        return false
+    }
+
+    /**
+     * Función encargada de verificar si un token es una cadena
+     * @return true si el token es es una cadena; de lo contrario, false
+     */
+    fun isString() : Boolean{
+        if(currentCharacter == '\"'){
+            var lexeme = ""
+            setPositionsBacktracking(currentRow,currentColumn,currentPosition)
+            lexeme = concatCurrentCharacter(lexeme)
+            nextCharacter()
+            while(currentCharacter != '\"'){
+                lexeme = concatCurrentCharacter(lexeme)
+                nextCharacter()
+                if(currentCharacter == endSourceCode){
+                    errors.add(LexicalError("No se cerro la cadena",currentRow,currentColumn))
+                    backtracking()
+                    nextCharacter()
+                    return true
+                }
+            }
+            lexeme = concatCurrentCharacter(lexeme)
+            return addToken(lexeme,Category.CADENA)
         }
         return false
     }
