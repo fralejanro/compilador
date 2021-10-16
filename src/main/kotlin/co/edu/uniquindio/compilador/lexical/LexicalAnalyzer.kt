@@ -35,6 +35,8 @@ class LexicalAnalyzer(var sourceCode : String ) {
      */
     var tokens = ArrayList<Token>()
 
+    var errors = ArrayList<LexicalError>()
+
     /**
      * Atributo que representa la fila actual
      */
@@ -109,6 +111,7 @@ class LexicalAnalyzer(var sourceCode : String ) {
             if(isIncreaseOrDecrement('+')) continue
             if(isIncreaseOrDecrement('-')) continue
             if(isRelationalOperator()) continue
+            if(isCharacter()) continue
             if(isPoint()) continue
             if(isAnotherCharacter(',',Category.SEPARADOR)) continue
             if(isAnotherCharacter(':',Category.DOS_PUNTOS)) continue
@@ -364,6 +367,46 @@ class LexicalAnalyzer(var sourceCode : String ) {
             }
         }
         return false
+    }
+
+    /**
+     * Función encargada de verificar si un token es un carácter
+     * @return true si el token es es un carácter; de lo contrario, false
+     */
+    fun isCharacter() : Boolean{
+        if(isSingleQuote(currentCharacter)){
+            var lexeme = ""
+            setPositionsBacktracking(currentRow,currentColumn,currentPosition)
+            lexeme = concatCurrentCharacter(lexeme)
+            nextCharacter()
+            if (isSingleQuote(currentCharacter)){
+                errors.add(LexicalError("No se encuentra el carácter",currentRow,currentColumn))
+                return true
+            }
+            lexeme = concatCurrentCharacter(lexeme)
+            nextCharacter()
+            if(currentCharacter == endSourceCode){
+                errors.add(LexicalError("No se cerro el carácter",currentRow,currentColumn))
+                return true
+            }
+            if(!isSingleQuote(currentCharacter)) {
+                errors.add(LexicalError("No se cerro el carácter", currentRow, currentColumn))
+                return true
+            }else{
+                lexeme = concatCurrentCharacter(lexeme)
+                return addTokenNext(lexeme,Category.CARACTER)
+            }
+        }
+        return false
+    }
+
+    /**
+     * Función encargada de validar si un carácter es una comilla simple
+     * @param character carácter a validar
+     * @return true si el carácter es una comilla simple; de lo contrario, false
+     */
+    fun isSingleQuote(character: Char) : Boolean{
+        return character == '\''
     }
 
     /**

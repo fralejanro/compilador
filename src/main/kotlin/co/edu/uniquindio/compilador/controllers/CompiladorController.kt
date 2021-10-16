@@ -44,6 +44,7 @@ class CompiladorController: Initializable {
             lexicalAnalyzer = LexicalAnalyzer(txtCodigo.text)
             lexicalAnalyzer.analyze()
             tablaPrincipal.items = FXCollections.observableArrayList(lexicalAnalyzer.tokens)
+            tablaError.items = FXCollections.observableArrayList(lexicalAnalyzer.errors)
         }else{
             var alerta = Alert(Alert.AlertType.WARNING)
             alerta.headerText = "Info"
@@ -57,5 +58,8 @@ class CompiladorController: Initializable {
         colColumn.cellValueFactory = PropertyValueFactory("column")
         colCategory.cellValueFactory = PropertyValueFactory("category")
         colLexeme.cellValueFactory = PropertyValueFactory("lexeme")
+        colRowError.cellValueFactory = PropertyValueFactory("row")
+        colColumnError.cellValueFactory = PropertyValueFactory("column")
+        colError.cellValueFactory = PropertyValueFactory("message")
     }
 }
