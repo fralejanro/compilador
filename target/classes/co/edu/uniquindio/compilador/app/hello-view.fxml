@@ -8,6 +8,7 @@
 <AnchorPane  xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.uniquindio.compilador.controllers.CompiladorController">
     <children>
         <Button fx:id="btnAnalizar" layoutX="14.0" layoutY="356.0" mnemonicParsing="false" onAction="#analyze" prefHeight="25.0" prefWidth="120.0" text="Analizar" />
+        <TreeView fx:id="tree" layoutX="714.0" layoutY="44.0" prefHeight="548.0" prefWidth="279.0" />
         <TabPane layoutX="14.0" layoutY="393.0" prefHeight="200.0" prefWidth="687.0" tabClosingPolicy="UNAVAILABLE">
             <tabs>
                 <Tab text="Tabla Léxica">
@@ -33,11 +34,26 @@
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="171.0" prefWidth="510.0">
                             <children>
-                                <TableView fx:id="tablaError" layoutX="1.0" prefHeight="169.0" prefWidth="687.0">
+                                <TableView fx:id="tableError" layoutX="1.0" prefHeight="169.0" prefWidth="687.0">
                                     <columns>
                                         <TableColumn fx:id="colRowError" prefWidth="50.0" text="FIL" />
                                         <TableColumn fx:id="colColumnError" prefWidth="50.0" text="COL" />
                                         <TableColumn fx:id="colError" prefWidth="586.0" text="ERROR" />
+                                    </columns>
+                                </TableView>
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+                <Tab text="Error Sintáctico">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                            <children>
+                                <TableView fx:id="tableErrorSyntactic" layoutX="2.0" prefHeight="170.0" prefWidth="687.0">
+                                    <columns>
+                                        <TableColumn fx:id="colRowErrorSyntactic" prefWidth="50.0" text="FIL" />
+                                        <TableColumn fx:id="colColumnErrorSyntactic" prefWidth="50.0" text="COL" />
+                                        <TableColumn fx:id="colErrorSyntactic" prefWidth="586.0" text="ERROR" />
                                     </columns>
                                 </TableView>
                             </children>
@@ -55,5 +71,6 @@
                 </Tab>
             </tabs>
         </TabPane>
+        <Label layoutX="714.0" layoutY="16.0" text="Unidad de Compilacion" />
     </children>
 </AnchorPane>

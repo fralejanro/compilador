@@ -35,6 +35,9 @@ class LexicalAnalyzer(var sourceCode : String ) {
      */
     var tokens = ArrayList<Token>()
 
+    /**
+     * Atributo que representa los errores lexicos
+     */
     var errors = ArrayList<LexicalError>()
 
     /**
@@ -111,6 +114,7 @@ class LexicalAnalyzer(var sourceCode : String ) {
             if(isIncreaseOrDecrement('+')) continue
             if(isIncreaseOrDecrement('-')) continue
             if(isRelationalOperator()) continue
+            if(isLogicalOperator()) continue
             if(isString()) continue
             if(isCharacter()) continue
             if(isPoint()) continue
@@ -175,17 +179,19 @@ class LexicalAnalyzer(var sourceCode : String ) {
                 }
                 if(isPoint(currentCharacter)){
                     lexeme = concatCurrentCharacter(lexeme)
+                    setPositionsBacktracking(currentRow,currentColumn,currentPosition)
                     nextCharacter()
+                    if(currentCharacter.isDigit()){
+                        lexeme = concatCurrentCharacter(lexeme)
+                        nextCharacter()
+                    }else{
+                        return addToken(lexeme.substring(0,lexeme.length-2),Category.ENTERO)
+                    }
                 }
             }
-
             while(currentCharacter.isDigit()){
                 lexeme = concatCurrentCharacter(lexeme)
                 nextCharacter()
-            }
-
-            if(isPoint(currentCharacter)){
-                return backtracking()
             }
             return addToken(lexeme, Category.DECIMAL)
         }
@@ -309,7 +315,15 @@ class LexicalAnalyzer(var sourceCode : String ) {
             var lexeme = ""
             setPositionsBacktracking(currentRow, currentColumn, currentPosition)
             lexeme = concatCurrentCharacter(lexeme)
-            if (currentCharacter == '<' || currentCharacter == '>') {
+            if(currentCharacter == '!'){
+                nextCharacter()
+                if (isEquals(currentCharacter)) {
+                    lexeme = concatCurrentCharacter(lexeme)
+                    return addTokenNext(lexeme, Category.OPERADOR_RELACIONAL)
+                }
+                return backtracking()
+            }
+            else if (currentCharacter == '<' || currentCharacter == '>') {
                 nextCharacter()
                 if (isEquals(currentCharacter)) {
                     lexeme = concatCurrentCharacter(lexeme)
@@ -331,6 +345,41 @@ class LexicalAnalyzer(var sourceCode : String ) {
                     return backtracking()
                 }
             }
+        }
+        return false
+    }
+
+    /**
+     *
+     * Funcion que permite saber si una expresion es un operador logico
+     */
+    fun isLogicalOperator(): Boolean {
+        if(mutableListOf('!','&','|').contains(currentCharacter)) {
+            var lexeme = ""
+            setPositionsBacktracking(currentRow, currentColumn, currentPosition)
+            lexeme = concatCurrentCharacter(lexeme)
+            if(currentCharacter == '!'){
+                nextCharacter()
+                if(currentCharacter=='='){
+                    return  backtracking()
+                }
+                return addToken(lexeme, Category.OPERADOR_LOGICO)
+            }else if(currentCharacter == '&'){
+                nextCharacter()
+                if(currentCharacter == '&'){
+                    lexeme = concatCurrentCharacter(lexeme)
+                    return addTokenNext(lexeme, Category.OPERADOR_LOGICO)
+                }
+                return backtracking()
+            }else if(currentCharacter == '|'){
+                nextCharacter()
+                if(currentCharacter == '|'){
+                    lexeme = concatCurrentCharacter(lexeme)
+                    return addTokenNext(lexeme, Category.OPERADOR_LOGICO)
+                }
+                return backtracking()
+            }
+
         }
         return false
     }
@@ -422,7 +471,7 @@ class LexicalAnalyzer(var sourceCode : String ) {
                 }
             }
             lexeme = concatCurrentCharacter(lexeme)
-            return addToken(lexeme,Category.CADENA)
+            return addTokenNext(lexeme,Category.CADENA)
         }
         return false
     }

@@ -5,5 +5,6 @@ package co.edu.uniquindio.compilador.lexical
  * @author Francisco Alejandro Hoyos Rojas
  */
 enum class ReservedWords {
-    INTEGER, DOUBLE, BOOLEAN, FLOAT, STRING, FUNCTION, PRINT, RETURN
+    INTEGER, DOUBLE, BOOLEAN, FLOAT, STRING, FUNCTION, PRINT, RETURN, VOID, FUN, TRUE, FALSE, READ, GLOBAL, IF, THEN,
+    LOOP, MUTABLE, INMUTABLE, REPEAT
 }

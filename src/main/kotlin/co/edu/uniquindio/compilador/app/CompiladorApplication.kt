@@ -7,7 +7,7 @@ import javafx.stage.Stage
 class CompiladorApplication : Application() {
     override fun start(stage: Stage) {
         val fxmlLoader = FXMLLoader(CompiladorApplication::class.java.getResource("hello-view.fxml"))
-        val scene = Scene(fxmlLoader.load(), 720.0, 600.0)
+        val scene = Scene(fxmlLoader.load(), 1000.0, 600.0)
         stage.title = "Compilador"
         stage.scene = scene
         stage.show()
