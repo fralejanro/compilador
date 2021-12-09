@@ -9,14 +9,17 @@ import javafx.scene.control.TreeItem
  */
 class Parameter (var dataType: Token, var name: Token) {
 
-    fun getTree(): TreeItem<String>{
+    fun getTree(): TreeItem<String> {
         var parent = TreeItem("Parameter")
         parent.children.add(TreeItem("Data type: ${dataType.lexeme}"))
         parent.children.add(TreeItem("Identifier: ${name.lexeme}"))
         return parent
     }
 
-    override fun toString(): String {
-        return "Parameter(dataType=$dataType, name=$name)"
+    /**
+     * Función encargada de obtener el código java
+     */
+    fun getJavaCode():String{
+        return dataType.getJavaCode() +" "+name.lexeme
     }
 }

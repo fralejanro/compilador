@@ -34,7 +34,7 @@ class SyntacticAnalyzer(var tokens : ArrayList<Token>) {
     /**
      * Atributo que representa los tipos de datos
      */
-    var dataType = listOf(ReservedWords.INTEGER, ReservedWords.DOUBLE, ReservedWords.BOOLEAN, ReservedWords.FLOAT, ReservedWords.STRING)
+    var dataType = listOf(ReservedWords.INTEGER, ReservedWords.DOUBLE, ReservedWords.BOOLEAN, ReservedWords.STRING)
 
     /**
      * Funcion encargada de obtener el siguiente token
@@ -155,7 +155,7 @@ class SyntacticAnalyzer(var tokens : ArrayList<Token>) {
 
     /**
      * Función encargada de verificar si una categoría es un tipo de dato de una función
-     * <TipoDatoFuncion> :: = INTEGER | DOUBLE | BOOLEAN | FLOAT | STRING | VOID
+     * <TipoDatoFuncion> :: = INTEGER | DOUBLE | BOOLEAN | STRING | VOID
      */
     fun isDataType(): Boolean {
         return (currentToken.category === Category.PALABRA_RESERVADA && dataType.contains(ReservedWords.valueOf(currentToken.lexeme))) || currentToken.lexeme == ReservedWords.VOID.name
@@ -266,6 +266,11 @@ class SyntacticAnalyzer(var tokens : ArrayList<Token>) {
         if(repeat!=null){
             return repeat
         }
+
+        var array : Array? = isArray()
+        if(array!=null){
+            return array
+        }
         return null
     }
 
@@ -315,7 +320,6 @@ class SyntacticAnalyzer(var tokens : ArrayList<Token>) {
             if (logicalExpression == null) {
                 errors.add(SyntacticError("No se encontró la expresión",  currentToken.row, currentToken.column))
             }
-            nextToken()
             if (currentToken.category != Category.PARENTESIS_DERECHO) {
                 errors.add(SyntacticError("No se encontró el paréntesis derecho",  currentToken.row, currentToken.column))
             }
@@ -559,6 +563,21 @@ class SyntacticAnalyzer(var tokens : ArrayList<Token>) {
             } else {
                 return ArithmeticExpression(numericalValue)
             }
+        }else{
+            val getValueArray : GetValueArray? = isGetValueArray()
+            if(getValueArray!=null){
+                nextToken()
+                if (currentToken.category == Category.OPERADOR_ARITMETICO) {
+                    val operator = currentToken
+                    nextToken()
+                    val arithmeticExpression = isArithmeticExpression()
+                    if (arithmeticExpression != null) {
+                        return ArithmeticExpression(getValueArray, operator, arithmeticExpression)
+                    }
+                } else {
+                    return ArithmeticExpression(getValueArray)
+                }
+            }
         }
         return null
     }
@@ -657,7 +676,12 @@ class SyntacticAnalyzer(var tokens : ArrayList<Token>) {
                     return LogicalExpression(relationalExpression, operator, logicalExpression)
                 }
             } else {
-                return LogicalExpression(relationalExpression)
+                if (currentToken.lexeme == "TRUE" || currentToken.lexeme == "FALSE"){
+                    nextToken()
+                    return LogicalExpression(relationalExpression)
+                }else{
+                    return LogicalExpression(relationalExpression)
+                }
             }
         }
         return null
@@ -722,18 +746,35 @@ class SyntacticAnalyzer(var tokens : ArrayList<Token>) {
         if (currentToken.category == Category.PALABRA_RESERVADA && ReservedWords.valueOf(currentToken.lexeme) == ReservedWords.READ) {
             var reservedWord = currentToken
             nextToken()
-            if (currentToken.category == Category.IDENTIFICADOR) {
-                var identifier = currentToken
+            if (isDataType()) {
+                var dataType = currentToken
                 nextToken()
-                if (currentToken.category == Category.FIN_SENTENCIA) {
-                    var endSentence = currentToken
+                if (currentToken.category == Category.IDENTIFICADOR) {
+                    var identifier = currentToken
                     nextToken()
-                    return Read(reservedWord, identifier, endSentence)
+                    var auxToken = currentToken
+                    var expression: StringExpression? = isStringExpression()
+                    if (expression == null) {
+                        errors.add(SyntacticError("No se encontró la expresión de cadena", auxToken.row, auxToken.column))
+                    }
+                    if (currentToken.category == Category.FIN_SENTENCIA) {
+                        var endSentence = currentToken
+                        nextToken()
+                        return Read(reservedWord, dataType, identifier, expression, endSentence)
+                    } else {
+                        errors.add(
+                            SyntacticError(
+                                "No se encontró el fin de sentencia",
+                                currentToken.row,
+                                currentToken.column
+                            )
+                        )
+                    }
                 } else {
-                    errors.add(SyntacticError("No se encontró el fin de sentencia",  currentToken.row, currentToken.column))
+                    errors.add(SyntacticError("No se encontró el identificador", currentToken.row, currentToken.column))
                 }
-            } else {
-                errors.add(SyntacticError("No se encontró el identificador",  currentToken.row, currentToken.column))
+            }else{
+                errors.add(SyntacticError("No se encontró el tipo de dato",  currentToken.row, currentToken.column))
             }
         }
         return null
@@ -877,4 +918,93 @@ class SyntacticAnalyzer(var tokens : ArrayList<Token>) {
         }
         return null
     }
+
+    /**
+     * Función encargada de verificar si una categoría es un arreglo
+     * <Arreglo>::= [] <TipoDato> identificador { [<Argumentos>] }
+     */
+    fun isArray(): Array? {
+        if (currentToken.category == Category.CORCHETE_IZQUIERDO) {
+            nextToken()
+            if (currentToken.category == Category.CORCHETE_DERECHO) {
+                nextToken()
+                if (isDataType()) {
+                    var dataType = currentToken
+                    nextToken()
+                    if (currentToken.category == Category.IDENTIFICADOR) {
+                        var identifier = currentToken
+                        nextToken()
+                        if (currentToken.category == Category.LLAVE_IZQUIERDA) {
+                            nextToken()
+                            var arguments = isArguments()
+                            if (currentToken.category == Category.LLAVE_DERECHA) {
+                                nextToken()
+                                if (currentToken.category == Category.FIN_SENTENCIA) {
+                                    nextToken()
+                                    return Array(dataType, identifier, arguments)
+                                } else {
+                                    errors.add(SyntacticError("No se encontró el fin de sentencia",  currentToken.row, currentToken.column))
+                                }
+                            } else {
+                                errors.add(SyntacticError("No se encontró la llave izquierda",  currentToken.row, currentToken.column))
+                            }
+                        } else {
+                            errors.add(SyntacticError("No se encontró la llave derecha",  currentToken.row, currentToken.column))
+                        }
+                    } else {
+                        backtracking(currentPosition - 1)
+                        return null
+                    }
+                } else {
+                    errors.add(SyntacticError("No se encontró el corchete derecho",  currentToken.row, currentToken.column))
+                }
+            } else {
+                errors.add(SyntacticError("No se encontró el corchete izquierdo",  currentToken.row, currentToken.column))
+            }
+        }
+        return null
+    }
+
+    /**
+     * Función encargada de verificar si una categoría es un obtener el valor de un arreglo
+     * <Arreglo>::= GET(identificadorArreglo <separador> identificadorPosicion)
+     */
+    fun isGetValueArray(): GetValueArray? {
+        if(currentToken.category == Category.PALABRA_RESERVADA && ReservedWords.valueOf(currentToken.lexeme) == ReservedWords.GET){
+            var reservedWord = currentToken
+            nextToken()
+            if(currentToken.category == Category.PARENTESIS_IZQUIERDO){
+                var parenthesisLeft = currentToken
+                nextToken()
+                if(currentToken.category == Category.IDENTIFICADOR){
+                    var identifierArray = currentToken
+                    nextToken()
+                    if(currentToken.category == Category.SEPARADOR){
+                        var separator = currentToken
+                        nextToken()
+                        if(currentToken.category == Category.IDENTIFICADOR){
+                            var identifierPosition = currentToken
+                            nextToken()
+                            if(currentToken.category == Category.PARENTESIS_DERECHO){
+                                var parenthesisRight = currentToken
+                                return GetValueArray(reservedWord,parenthesisLeft,identifierArray,separator,identifierPosition,parenthesisRight)
+                            }else{
+                                errors.add(SyntacticError("No se encontró el parentesis derecho",  currentToken.row, currentToken.column))
+                            }
+                        }else{
+                            errors.add(SyntacticError("No se encontró el identificador de posición",  currentToken.row, currentToken.column))
+                        }
+                    }else{
+                        errors.add(SyntacticError("No se encontró el separador",  currentToken.row, currentToken.column))
+                    }
+                }else{
+                    errors.add(SyntacticError("No se encontró el identificador del arreglo",  currentToken.row, currentToken.column))
+                }
+            }else{
+                errors.add(SyntacticError("No se encontró el parentesis izquierdo",  currentToken.row, currentToken.column))
+            }
+        }
+        return null;
+    }
+
 }

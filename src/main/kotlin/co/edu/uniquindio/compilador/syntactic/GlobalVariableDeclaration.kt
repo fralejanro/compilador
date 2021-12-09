@@ -9,6 +9,9 @@ import javafx.scene.control.TreeItem
  */
 class GlobalVariableDeclaration(var typeVariable: Token, var dataType: Token, var identifier: Token, var endSentence: Token) {
 
+    /**
+     * Función encargada de obtener el árbol visual
+     */
     fun getTree(): TreeItem<String> {
         var parent = TreeItem("Global Variable Declaration")
         parent.children.add(TreeItem("Data Type: ${dataType.lexeme}"))

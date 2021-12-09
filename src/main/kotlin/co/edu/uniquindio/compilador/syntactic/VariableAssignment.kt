@@ -1,6 +1,9 @@
 package co.edu.uniquindio.compilador.syntactic
 
 import co.edu.uniquindio.compilador.lexical.Token
+import co.edu.uniquindio.compilador.semantic.SemanticError
+import co.edu.uniquindio.compilador.semantic.Symbol
+import co.edu.uniquindio.compilador.semantic.SymbolsTable
 import javafx.scene.control.TreeItem
 
 /**
@@ -33,8 +36,42 @@ class VariableAssignment(): Sentence() {
         return parent
     }
 
-    override fun toString(): String {
-        return "VariableAssignment(identifier=$identifier, assignmentOperator=$assignmentOperator, expression=$expression, invocation=$invocation, endSentence=$endSentence)"
+    override fun analyzeSemantic(symbolsTable: SymbolsTable, semanticErrors: ArrayList<SemanticError>, ambit: Symbol) {
+        var symbol = symbolsTable.getValueSymbol(identifier!!.lexeme,ambit)
+        if(symbol==null){
+            semanticErrors.add(
+                SemanticError(
+                    "La variable ${identifier!!.lexeme} no existe dentro del ambito ${ambit.name}",
+                    identifier!!.row,
+                    identifier!!.column
+                )
+            )
+        }else{
+            var dataType = symbol.type
+            if(expression!=null){
+                expression!!.analyzeSemantic(symbolsTable, semanticErrors, ambit)
+                var typeExpression = expression!!.getType(symbolsTable,ambit)
+                if(typeExpression!= dataType){
+                    semanticErrors.add(
+                        SemanticError(
+                            "El tipo de dato de la expresión ${typeExpression} no coincide con el tipo de dato de la variable ${identifier!!.lexeme} que es del tipo ${dataType}",
+                            identifier!!.row,
+                            identifier!!.column
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    override fun getJavaCode(): String {
+        var sourceCode =""
+        sourceCode += identifier?.lexeme
+        if(expression!=null){
+            sourceCode +="="+expression?.getJavaCode()+";"
+            return sourceCode
+        }
+        return sourceCode+";"
     }
 
 }

@@ -8,6 +8,7 @@
 <AnchorPane  xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.uniquindio.compilador.controllers.CompiladorController">
     <children>
         <Button fx:id="btnAnalizar" layoutX="14.0" layoutY="356.0" mnemonicParsing="false" onAction="#analyze" prefHeight="25.0" prefWidth="120.0" text="Analizar" />
+        <Button fx:id="btnTraducir" layoutX="298.0" layoutY="356.0" mnemonicParsing="false" onAction="#translateCode" prefHeight="25.0" prefWidth="120.0" text="Traducir" />
         <TreeView fx:id="tree" layoutX="714.0" layoutY="44.0" prefHeight="548.0" prefWidth="279.0" />
         <TabPane layoutX="14.0" layoutY="393.0" prefHeight="200.0" prefWidth="687.0" tabClosingPolicy="UNAVAILABLE">
             <tabs>
@@ -60,6 +61,21 @@
                         </AnchorPane>
                     </content>
                 </Tab>
+                <Tab text="Error Semántico">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                            <children>
+                                <TableView fx:id="tableErrorSemantic" layoutX="2.0" prefHeight="170.0" prefWidth="687.0">
+                                    <columns>
+                                        <TableColumn fx:id="colRowErrorSemantic" prefWidth="50.0" text="FIL" />
+                                        <TableColumn fx:id="colColumnErrorSemantic" prefWidth="50.0" text="COL" />
+                                        <TableColumn fx:id="colErrorSemantic" prefWidth="586.0" text="ERROR" />
+                                    </columns>
+                                </TableView>
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </Tab>
             </tabs>
         </TabPane>
         <TabPane layoutX="14.0" layoutY="20.0" prefHeight="327.0" prefWidth="687.0" tabClosingPolicy="UNAVAILABLE">
@@ -67,6 +83,11 @@
                 <Tab text="Código fuente:">
                     <content>
                         <TextArea fx:id="txtCodigo" prefHeight="83.0" prefWidth="687.0" />
+                    </content>
+                </Tab>
+                <Tab text="Codigo Java:">
+                    <content>
+                        <TextArea fx:id="txtJava" prefHeight="83.0" prefWidth="687.0" />
                     </content>
                 </Tab>
             </tabs>

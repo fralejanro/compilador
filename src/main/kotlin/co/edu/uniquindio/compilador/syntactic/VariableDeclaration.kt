@@ -1,6 +1,10 @@
 package co.edu.uniquindio.compilador.syntactic
 
+import co.edu.uniquindio.compilador.lexical.ReservedWords
 import co.edu.uniquindio.compilador.lexical.Token
+import co.edu.uniquindio.compilador.semantic.SemanticError
+import co.edu.uniquindio.compilador.semantic.Symbol
+import co.edu.uniquindio.compilador.semantic.SymbolsTable
 import javafx.scene.control.TreeItem
 
 /**
@@ -17,8 +21,15 @@ class VariableDeclaration (var type: Token, var dataType: Token, var identifier:
         return parent
     }
 
-    override fun toString(): String {
-        return "VariableDeclaration(type=$type, dataType=$dataType, identifier=$identifier, endSentence=$endSentence)"
+    override fun addSymbols(symbolsTable: SymbolsTable, semanticErrors: ArrayList<SemanticError>, ambit: Symbol) {
+        symbolsTable.addValueSymbol(identifier.lexeme, dataType.lexeme,ambit,identifier.row,identifier.column)
     }
 
+    override fun getJavaCode(): String {
+        if(ReservedWords.valueOf(type.lexeme)== ReservedWords.INMUTABLE){
+            return "final " +dataType.getJavaCode()+" "+identifier.lexeme +";"
+        }else{
+            return dataType.getJavaCode()+" "+identifier.lexeme +";"
+        }
+    }
 }

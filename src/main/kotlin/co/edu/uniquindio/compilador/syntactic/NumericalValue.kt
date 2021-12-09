@@ -9,11 +9,24 @@ import javafx.scene.control.TreeItem
  */
 class NumericalValue(var symbol: Token?, var  type:Token) {
 
+    /**
+     * Función encargada de obtener el árbol visual
+     */
     fun getTree(): TreeItem<String> {
         return TreeItem("Type: ${type.lexeme} : symbol: ${symbol?.lexeme} ")
     }
 
-    override fun toString(): String {
-        return "NumericalValue(symbol=$symbol, type=$type)"
+    /**
+     * Función encargada de obtener el código java
+     */
+    fun getJavaCode():String{
+        var sourceCode=""
+        if(symbol!=null){
+            sourceCode+=symbol?.lexeme+type.lexeme
+        }
+        sourceCode+=type.lexeme
+        return sourceCode
     }
+
+
 }

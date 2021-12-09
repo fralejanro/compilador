@@ -1,6 +1,9 @@
 package co.edu.uniquindio.compilador.syntactic
 
 import co.edu.uniquindio.compilador.lexical.Token
+import co.edu.uniquindio.compilador.semantic.SemanticError
+import co.edu.uniquindio.compilador.semantic.Symbol
+import co.edu.uniquindio.compilador.semantic.SymbolsTable
 import javafx.scene.control.TreeItem
 
 /**
@@ -15,9 +18,12 @@ class Print (var reservedWord: Token?, var parenthesisLeft: Token?, var expressi
         return parent
     }
 
-    override fun toString(): String {
-        return "Print(reservedWord=$reservedWord, parenthesisLeft=$parenthesisLeft, expression=$expression, parenthesisRight=$parenthesisRight, endSentence=$endSentence)"
+    override fun analyzeSemantic(symbolsTable: SymbolsTable, semanticErrors: ArrayList<SemanticError>, ambit: Symbol) {
+        expression!!.analyzeSemantic(symbolsTable, semanticErrors, ambit)
     }
 
+    override fun getJavaCode(): String {
+        return reservedWord?.getJavaCode() + expression?.getJavaCode()+");"
+    }
 
 }

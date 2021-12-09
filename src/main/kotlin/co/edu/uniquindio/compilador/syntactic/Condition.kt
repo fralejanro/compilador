@@ -1,6 +1,9 @@
 package co.edu.uniquindio.compilador.syntactic
 
 import co.edu.uniquindio.compilador.lexical.Token
+import co.edu.uniquindio.compilador.semantic.SemanticError
+import co.edu.uniquindio.compilador.semantic.Symbol
+import co.edu.uniquindio.compilador.semantic.SymbolsTable
 import javafx.scene.control.TreeItem
 
 /**
@@ -51,9 +54,78 @@ class Condition(
         return parent
     }
 
-    override fun toString(): String {
-        return "Condition(reservedWordIf=$reservedWordIf, parenthesisLeft=$parenthesisLeft, logicalExpression=$logicalExpression, parenthesisRight=$parenthesisRight, keyLeftIf=$keyLeftIf, sentencesIf=$sentencesIf, keyRightIf=$keyRightIf, reservedWordThen=$reservedWordThen, keyLeftThen=$keyLeftThen, sentencesThen=$sentencesThen, keyRightThen=$keyRightThen)"
+    override fun addSymbols(symbolsTable: SymbolsTable, semanticErrors: ArrayList<SemanticError>, ambit: Symbol) {
+        var ambitIf = Symbol(
+            reservedWordIf!!.lexeme,
+            null,
+            ArrayList<String>(),
+            reservedWordIf!!.row,
+            reservedWordIf!!.column
+        )
+
+        for(sentence in sentencesIf){
+            sentence.addSymbols(symbolsTable,semanticErrors,ambitIf)
+        }
+
+        var ambitThen = Symbol(
+            reservedWordThen!!.lexeme,
+            null,
+            ArrayList<String>(),
+            reservedWordThen!!.row,
+            reservedWordThen!!.column
+        )
+
+        for(sentence in sentencesThen) {
+            sentence.addSymbols(symbolsTable, semanticErrors, ambitThen)
+        }
     }
 
+    override fun analyzeSemantic(symbolsTable: SymbolsTable, semanticErrors: ArrayList<SemanticError>, ambit: Symbol) {
+        if(logicalExpression!=null){
+            logicalExpression!!.analyzeSemantic(symbolsTable,semanticErrors,ambit)
+        }else{
+            semanticErrors.add(
+                SemanticError(
+                    "Se encontro un error en al expresión lógica del ambito ${ambit.name}",
+                    reservedWordIf!!.row,
+                    reservedWordIf!!.column
+                )
+            )
+        }
 
+        var ambitIf = Symbol(
+            reservedWordIf!!.lexeme,
+            null,
+            ArrayList<String>(),
+            reservedWordIf!!.row,
+            reservedWordIf!!.column
+        )
+        for (sentence in sentencesIf){
+            sentence.analyzeSemantic(symbolsTable, semanticErrors, ambitIf)
+        }
+
+        var ambitThen = Symbol(
+            reservedWordThen!!.lexeme,
+            null,
+            ArrayList<String>(),
+            reservedWordThen!!.row,
+            reservedWordThen!!.column
+        )
+        for (sentence in sentencesThen){
+            sentence.analyzeSemantic(symbolsTable, semanticErrors, ambitThen)
+        }
+    }
+
+    override fun getJavaCode(): String {
+        var sourceCode = "if("+logicalExpression?.getJavaCode()+"){"
+        for(sentence in sentencesIf){
+            sourceCode += sentence.getJavaCode()
+        }
+        sourceCode += "}else{"
+        for(sentence in sentencesThen){
+            sourceCode += sentence.getJavaCode()
+        }
+        sourceCode += "}"
+        return sourceCode
+    }
 }

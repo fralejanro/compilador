@@ -35,7 +35,4 @@ class Repeat (
         return parent
     }
 
-    override fun toString(): String {
-        return "Repeat(reservedWord=$reservedWord, parenthesisLeft=$parenthesisLeft, keyLeft=$keyLeft, sentences=$sentences, keyRight=$keyRight, separator=$separator, repetitions=$repetitions, parenthesisRight=$parenthesisRight, endSentence=$endSentence)"
-    }
 }

@@ -1,6 +1,9 @@
 package co.edu.uniquindio.compilador.syntactic
 
 import co.edu.uniquindio.compilador.lexical.Token
+import co.edu.uniquindio.compilador.semantic.SemanticError
+import co.edu.uniquindio.compilador.semantic.Symbol
+import co.edu.uniquindio.compilador.semantic.SymbolsTable
 import javafx.scene.control.TreeItem
 
 /**
@@ -26,8 +29,23 @@ class RelationalExpression() : Expresion() {
         return TreeItem("Relational Expression")
     }
 
-    override fun toString(): String {
-        return "RelationalExpression(arithmeticExpression=$arithmeticExpression, operator=$operator, arithmeticExpressionAux=$arithmeticExpressionAux)"
+    override fun getType(symbolsTable: SymbolsTable, ambit: Symbol): String {
+        return "RELATIONAL"
     }
 
+    override fun analyzeSemantic(symbolsTable: SymbolsTable, semanticErrors: ArrayList<SemanticError>, ambit: Symbol) {
+        if(arithmeticExpression!=null && arithmeticExpressionAux!=null){
+            arithmeticExpression!!.analyzeSemantic(symbolsTable,semanticErrors,ambit)
+            arithmeticExpressionAux!!.analyzeSemantic(symbolsTable, semanticErrors, ambit)
+        }else if(arithmeticExpression!=null){
+            arithmeticExpression!!.analyzeSemantic(symbolsTable, semanticErrors, ambit)
+        }
+    }
+
+    override fun getJavaCode(): String {
+        if(arithmeticExpression!=null && arithmeticExpressionAux!=null){
+           return arithmeticExpression?.getJavaCode() + operator?.lexeme + arithmeticExpressionAux?.getJavaCode()
+        }
+        return arithmeticExpression?.getJavaCode()+""
+    }
 }

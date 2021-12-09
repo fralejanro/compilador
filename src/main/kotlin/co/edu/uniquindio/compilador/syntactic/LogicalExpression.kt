@@ -1,6 +1,9 @@
 package co.edu.uniquindio.compilador.syntactic
 
 import co.edu.uniquindio.compilador.lexical.Token
+import co.edu.uniquindio.compilador.semantic.SemanticError
+import co.edu.uniquindio.compilador.semantic.Symbol
+import co.edu.uniquindio.compilador.semantic.SymbolsTable
 import javafx.scene.control.TreeItem
 
 /**
@@ -22,12 +25,30 @@ class LogicalExpression(): Expresion() {
         this.relationalExpression = logicalValue
     }
 
-
     override fun getTree(): TreeItem<String> {
         return TreeItem("Logical Expression")
     }
 
-    override fun toString(): String {
-        return "LogicalExpression(relationalExpression=$relationalExpression, logicalOperator=$logicalOperator, logicalExpression=$logicalExpression)"
+    override fun analyzeSemantic(symbolsTable: SymbolsTable, semanticErrors: ArrayList<SemanticError>, ambit: Symbol) {
+        if(relationalExpression!=null && logicalExpression ==null){
+            relationalExpression!!.analyzeSemantic(symbolsTable,semanticErrors,ambit)
+        }else if(relationalExpression!=null && logicalExpression!=null){
+            relationalExpression!!.analyzeSemantic(symbolsTable, semanticErrors, ambit)
+            logicalExpression!!.analyzeSemantic(symbolsTable,semanticErrors,ambit)
+        }else if(logicalExpression!=null){
+            logicalExpression!!.analyzeSemantic(symbolsTable,semanticErrors,ambit)
+        }
     }
+
+    override fun getJavaCode(): String {
+        if(relationalExpression!=null&& logicalExpression!=null){
+            return relationalExpression?.getJavaCode() + logicalOperator?.lexeme + logicalExpression?.getJavaCode()
+        }else if(logicalExpression!=null){
+            return logicalExpression?.getJavaCode()+""
+        }else if( relationalExpression!=null && relationalExpression?.arithmeticExpression==null && relationalExpression?.arithmeticExpressionAux==null){
+            return relationalExpression?.operator?.getJavaCode() ?: ""
+        }
+        return relationalExpression?.getJavaCode()+""
+    }
+
 }
