@@ -85,7 +85,7 @@
                         <TextArea fx:id="txtCodigo" prefHeight="83.0" prefWidth="687.0" />
                     </content>
                 </Tab>
-                <Tab text="Codigo en Java:">
+                <Tab text="Codigo Java:">
                     <content>
                         <TextArea fx:id="txtJava" prefHeight="83.0" prefWidth="687.0" />
                     </content>

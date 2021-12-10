@@ -276,7 +276,7 @@ class SyntacticAnalyzer(var tokens : ArrayList<Token>) {
 
     /**
      * Función encargada de verificar si una categoría es una variable global
-     * <VariableGlobal> :: = GLOBAL identificador <FinSentencia>
+     * <VariableGlobal> :: = GLOBAL <TipoDato> identificador <FinSentencia>
      */
     fun isGloblaVariableDeclaration(): GlobalVariableDeclaration?{
         if (currentToken.category == Category.PALABRA_RESERVADA && ReservedWords.valueOf(currentToken.lexeme) == ReservedWords.GLOBAL) {

@@ -57,6 +57,9 @@ class CompilationUnit (var functions : ArrayList<Funcion>, var globalVariables :
      */
     fun getJavaCode(): String {
         var sourceCode = "import javax.swing.*;\n public class Principal{\n"
+        for (globalVariable in globalVariables){
+            sourceCode += globalVariable.getJavaCode()
+        }
         for (function in functions) {
             sourceCode += function.getJavaCode()
         }

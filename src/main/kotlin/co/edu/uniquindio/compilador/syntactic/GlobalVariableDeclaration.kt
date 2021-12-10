@@ -1,6 +1,10 @@
 package co.edu.uniquindio.compilador.syntactic
 
+import co.edu.uniquindio.compilador.lexical.ReservedWords
 import co.edu.uniquindio.compilador.lexical.Token
+import co.edu.uniquindio.compilador.semantic.SemanticError
+import co.edu.uniquindio.compilador.semantic.Symbol
+import co.edu.uniquindio.compilador.semantic.SymbolsTable
 import javafx.scene.control.TreeItem
 
 /**
@@ -19,9 +23,20 @@ class GlobalVariableDeclaration(var typeVariable: Token, var dataType: Token, va
         return parent
     }
 
-    override fun toString(): String {
-        return "GlobalVariableDeclaration(typeVariable=$typeVariable, dataType=$dataType, identifier=$identifier, endSentence=$endSentence)"
+    /**
+     * Función encargada de agregar los símbolos  a la tabla de símbolos
+     * @param symbolsTable tabla de símbolos
+     * @param ambit ambito de la sentencia
+     */
+    fun addSymbols(symbolsTable: SymbolsTable, ambit: Symbol) {
+        symbolsTable.addValueSymbol(identifier.lexeme, dataType.lexeme,ambit,identifier.row,identifier.column)
     }
 
+    /**
+     * Función encargada de obtener el código java
+     */
+    fun getJavaCode(): String {
+        return "public static final "+dataType.getJavaCode()+" "+identifier.lexeme +";"
+    }
 
 }

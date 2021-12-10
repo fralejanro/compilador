@@ -19,7 +19,7 @@ class SymbolsTable(var semanticErrors: ArrayList<SemanticError>) {
         } else {
             semanticErrors.add(
                 SemanticError(
-                    "La variable de nombre$name  ya se encuentra en el ambito ${ambit.name!!}",
+                    "La variable de nombre $name  ya se encuentra en el ambito ${ambit.name!!}",
                     row,
                     column
                 )
